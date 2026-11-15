@@ -82,6 +82,18 @@ export interface RotationStrategy {
     droughtResilience: 'Baja' | 'Media' | 'Alta' | 'Excelente';
     economicRisk: 'Alto' | 'Moderado' | 'Bajo';
   };
+  nasaEvidence?: {
+    dataset: string;
+    finding: string;
+  };
+  dataGaps?: {
+    limitation: string;
+    groundValidation: string;
+  };
+  localReview?: {
+    action: string;
+    practicalAdvice: string;
+  };
 }
 
 export interface AgroAnalysisResult {
