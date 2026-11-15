@@ -1,93 +1,24 @@
 <!DOCTYPE html>
 <html lang="es">
-<head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Geo API · NASA POWER + Copernicus</title>
-<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
-<style>
-  :root { --bg:#fff; --fg:#1a1a1a; --panel:#f5f5f4; --line:#d6d3d1; --accent:#0f766e; }
-  @media (prefers-color-scheme: dark) { :root { --bg:#1c1917; --fg:#f5f5f4; --panel:#292524; --line:#44403c; --accent:#2dd4bf; } }
-  * { box-sizing: border-box; }
-  body { margin:0; font:14px system-ui, sans-serif; background:var(--bg); color:var(--fg); display:flex; height:100vh; }
-  #side { width:360px; padding:14px; overflow:auto; background:var(--panel); border-right:1px solid var(--line); }
-  #map { flex:1; }
-  h1 { font-size:16px; margin:0 0 10px; }
-  label { display:block; margin:8px 0 2px; font-size:12px; opacity:.8; }
-  input { width:100%; padding:6px; border:1px solid var(--line); border-radius:6px; background:var(--bg); color:var(--fg); }
-  button { margin-top:10px; width:100%; padding:8px; border:0; border-radius:6px; background:var(--accent); color:#000; font-weight:600; cursor:pointer; }
-  .zone { margin-top:10px; padding:8px; border:1px solid var(--line); border-radius:6px; background:var(--bg); }
-  .zone b { color:var(--accent); }
-  table { width:100%; border-collapse:collapse; font-size:12px; margin-top:4px; }
-  td { padding:2px 4px; border-bottom:1px solid var(--line); }
-  .muted { opacity:.7; font-size:12px; }
-</style>
-</head>
-<body>
-<div id="side">
-  <h1>Zonas y métricas</h1>
-  <p class="muted">Clic en el mapa para colocar un punto (se imprime lat/lon en consola del servidor y del navegador).</p>
-  <label>Radio de zona (km)</label><input id="radius" type="number" value="5" min="1">
-  <label>Inicio</label><input id="start" type="date">
-  <label>Fin</label><input id="end" type="date">
-  <button id="calc">Calcular métricas de zonas</button>
-  <button id="clear" style="background:var(--line);color:var(--fg)">Limpiar</button>
-  <div id="out"></div>
-</div>
-<div id="map"></div>
-
-<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-<script>
-const $ = id => document.getElementById(id);
-const iso = d => d.toISOString().slice(0, 10);
-const today = new Date(), end = new Date(today - 5 * 864e5), start = new Date(end - 30 * 864e5);
-$("end").value = iso(end); $("start").value = iso(start);
-
-const map = L.map("map").setView([14.6349, -90.5069], 7);
-L.tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png", { attribution: "© OpenStreetMap" }).addTo(map);
-
-let zones = [], layers = L.layerGroup().addTo(map);
-
-map.on("click", async e => {
-  const lat = +e.latlng.lat.toFixed(5), lon = +e.latlng.lng.toFixed(5), radius_km = +$("radius").value;
-  const name = `Zona ${zones.length + 1}`;
-  zones.push({ name, lat, lon, radius_km });
-  console.log({ name, lat, lon });
-  const marker = L.marker([lat, lon]).addTo(layers).bindPopup(`<b>${name}</b><br>lat ${lat}<br>lon ${lon}<br>Consultando NASA POWER…`).openPopup();
-  L.circle([lat, lon], { radius: radius_km * 1000, color: "#0f766e", weight: 1 }).addTo(layers);
-  try {
-    const r = await fetch(`/nasapower/daily?lat=${lat}&lon=${lon}&start=${$("start").value.replaceAll("-", "")}&end=${$("end").value.replaceAll("-", "")}`);
-    const d = await r.json();
-    const t = d.summary?.T2M, p = d.summary?.PRECTOTCORR;
-    marker.setPopupContent(`<b>${name}</b><br>lat ${d.lat} · lon ${d.lon}<br>Temp media: ${t?.mean ?? "-"} °C<br>Precip. total: ${p?.total ?? "-"} mm`);
-  } catch (err) { marker.setPopupContent(`<b>${name}</b><br>Error: ${err}`); }
-});
-
-$("clear").onclick = () => { zones = []; layers.clearLayers(); $("out").innerHTML = ""; };
-
-$("calc").onclick = async () => {
-  if (!zones.length) return alert("Selecciona al menos una zona en el mapa");
-  $("out").innerHTML = "<p class='muted'>Calculando…</p>";
-  const r = await fetch("/metrics/zones", {
-    method: "POST", headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ zones, start: $("start").value, end: $("end").value })
-  });
-  const data = await r.json();
-  console.log(data);
-  $("out").innerHTML = data.zones.map(z => {
-    const n = z.nasa || {}, c = z.copernicus || {};
-    const row = (k, v) => `<tr><td>${k}</td><td>${v ?? "-"}</td></tr>`;
-    return `<div class="zone"><b>${z.name}</b> <span class="muted">(${z.lat}, ${z.lon} · ${z.radius_km} km)</span>
-      <table>
-        ${row("Temp media °C", n.T2M?.mean)}${row("Temp máx °C", n.T2M_MAX?.max)}${row("Temp mín °C", n.T2M_MIN?.min)}
-        ${row("Precip. total mm", n.PRECTOTCORR?.total)}${row("Humedad rel. %", n.RH2M?.mean)}
-        ${row("Radiación kWh/m²", n.ALLSKY_SFC_SW_DWN?.mean)}
-        ${row("Escenas Sentinel-2", c.scenes_found)}${row("Nubosidad media %", c.avg_cloud_cover)}
-        ${row("NDVI medio", c.ndvi?.mean?.toFixed?.(3))}
-      </table>${z.nasa_error || z.copernicus_error ? `<p class="muted">${z.nasa_error ?? ""} ${z.copernicus_error ?? ""}</p>` : ""}
-      ${c.ndvi_note ? `<p class="muted">${c.ndvi_note}</p>` : ""}</div>`;
-  }).join("");
-};
-</script>
-</body>
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 24 24%22 fill=%22none%22 stroke=%22%2310b981%22 stroke-width=%222%22 stroke-linecap=%22round%22 stroke-linejoin=%22round%22><path d=%22M7 20h10%22/><path d=%22M10 20c0-4 2-7 6-7 0 0-2-3-7-3-4 0-5 3-5 5 0 3 2 5 6 5%22/><path d=%22M14 14c2-5 6-7 6-7s-1 4-3 6%22/></svg>" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>OrbiCultivo · Plataforma de Resiliencia Agrícola (Olympus Forge)</title>
+    <!-- Leaflet CSS -->
+    <link
+      rel="stylesheet"
+      href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+      integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY="
+      crossorigin=""
+    />
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  </head>
+  <body class="bg-slate-900 text-slate-100 antialiased min-h-screen">
+    <div id="root"></div>
+    <script type="module" src="/src/main.tsx"></script>
+  </body>
 </html>
