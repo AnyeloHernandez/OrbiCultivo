@@ -18,38 +18,38 @@ export const ClimateScenarioSelector: React.FC = () => {
       id: 'normal',
       name: 'Año Normal',
       badge: 'Promedio Satelital',
-      desc: 'Histórico de precipitaciones y temperaturas de NASA POWER y SMAP.',
-      icon: <CloudSun className="w-4 h-4 text-emerald-400" />,
-      colorActive: 'bg-emerald-500/20 border-emerald-500 text-white ring-1 ring-emerald-500/40',
+      desc: 'Histórico habitual de lluvias y temperaturas de NASA POWER y SMAP.',
+      icon: <CloudSun className="w-4 h-4 text-emerald-700" />,
+      colorActive: 'bg-emerald-50 border-emerald-600 text-emerald-950 ring-2 ring-emerald-600/30',
     },
     {
       id: 'drought',
-      name: 'Sequía Fuerte ("El Niño")',
+      name: 'Año Seco ("El Niño")',
       badge: '-32% Lluvia | +1.8°C Calor',
-      desc: 'Simula canícula prolongada y estrés hídrico severo en tu cultivo.',
-      icon: <SunMedium className="w-4 h-4 text-amber-400" />,
-      colorActive: 'bg-amber-500/20 border-amber-500 text-white ring-1 ring-amber-500/40',
+      desc: 'Simula canícula prolongada y falta de agua fuerte en tu siembra.',
+      icon: <SunMedium className="w-4 h-4 text-amber-700" />,
+      colorActive: 'bg-amber-50 border-amber-600 text-amber-950 ring-2 ring-amber-600/30',
     },
     {
       id: 'rainy',
       name: 'Muy Lluvioso ("La Niña")',
       badge: '+30% Lluvia',
-      desc: 'Simula lluvias intensas con riesgo de saturación y hongos de raíz.',
-      icon: <CloudRain className="w-4 h-4 text-cyan-400" />,
-      colorActive: 'bg-cyan-500/20 border-cyan-500 text-white ring-1 ring-cyan-500/40',
+      desc: 'Simula temporales seguidos con riesgo de lodo y hongos en la raíz.',
+      icon: <CloudRain className="w-4 h-4 text-sky-700" />,
+      colorActive: 'bg-sky-50 border-sky-600 text-sky-950 ring-2 ring-sky-600/30',
     },
   ];
 
   return (
-    <div className="bg-slate-900 rounded-2xl border border-slate-800 p-4 shadow-lg space-y-3">
-      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-1.5 border-b border-slate-800/80 pb-2.5">
+    <div className="bg-white rounded-2xl border border-stone-200 p-4 shadow-sm space-y-3">
+      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-1.5 border-b border-stone-200 pb-2.5">
         <div className="flex items-center space-x-2">
-          <Sliders className="w-4 h-4 text-cyan-400" />
-          <h3 className="text-xs sm:text-sm font-bold text-white tracking-wide">
-            Simulador de Escenarios Climáticos
+          <Sliders className="w-4 h-4 text-sky-700" />
+          <h3 className="text-xs sm:text-sm font-bold text-stone-900 tracking-tight">
+            Simulador de Clima para tu Planificación
           </h3>
         </div>
-        <span className="text-[11px] text-slate-400">
+        <span className="text-[11px] text-stone-500">
           ¿Y si este año viene sequía o temporal?
         </span>
       </div>
@@ -64,26 +64,30 @@ export const ClimateScenarioSelector: React.FC = () => {
               type="button"
               disabled={isLoading}
               onClick={() => setClimateScenario(sc.id)}
-              className={`p-2.5 rounded-xl border text-left transition flex flex-col justify-between space-y-1.5 ${
+              className={`p-3 rounded-xl border text-left transition flex flex-col justify-between space-y-1.5 ${
                 isSelected
-                  ? `${sc.colorActive} shadow-md`
-                  : 'bg-slate-800/80 border-slate-700/80 text-slate-300 hover:bg-slate-800'
+                  ? `${sc.colorActive} shadow-xs`
+                  : 'bg-stone-50 border-stone-200 text-stone-700 hover:bg-stone-100 hover:border-stone-300'
               }`}
             >
               <div className="flex items-center justify-between">
                 <div className="flex items-center space-x-2">
-                  <div className="p-1 rounded-lg bg-slate-900/60">
+                  <div className="p-1.5 rounded-lg bg-white border border-stone-200 shadow-2xs">
                     {sc.icon}
                   </div>
                   <span className="font-bold text-xs">{sc.name}</span>
                 </div>
-                <span className={`text-[10px] font-semibold px-1.5 py-0.5 rounded border ${
-                  isSelected ? 'bg-slate-900/80 border-slate-700 text-white' : 'bg-slate-800 text-slate-400 border-slate-700/60'
-                }`}>
+                <span
+                  className={`text-[10px] font-bold px-1.5 py-0.5 rounded border ${
+                    isSelected
+                      ? 'bg-white border-stone-300 text-stone-900 shadow-2xs'
+                      : 'bg-stone-200/60 text-stone-600 border-stone-300'
+                  }`}
+                >
                   {sc.badge}
                 </span>
               </div>
-              <p className="text-[11px] text-slate-400 leading-tight">
+              <p className="text-[11px] text-stone-600 leading-tight">
                 {sc.desc}
               </p>
             </button>
@@ -92,8 +96,8 @@ export const ClimateScenarioSelector: React.FC = () => {
       </div>
 
       {climateScenario !== 'normal' && (
-        <div className="flex items-start space-x-2 text-xs text-amber-300 bg-amber-500/10 border border-amber-500/30 p-2.5 rounded-xl">
-          <Info className="w-4 h-4 shrink-0 mt-0.5 text-amber-400" />
+        <div className="flex items-start space-x-2.5 text-xs text-amber-950 bg-amber-50 border border-amber-300 p-3 rounded-xl">
+          <Info className="w-4 h-4 shrink-0 mt-0.5 text-amber-700" />
           <p className="leading-relaxed">
             {climateScenario === 'drought' ? (
               <span>
@@ -101,7 +105,7 @@ export const ClimateScenarioSelector: React.FC = () => {
               </span>
             ) : (
               <span>
-                <strong>Modo Simulación La Niña activo:</strong> Con un 30% más de precipitación, el estrés por sequía disminuye pero aumenta el riesgo de encharcamiento en tierras arcillosas.
+                <strong>Modo Simulación La Niña activo:</strong> Con un 30% más de precipitación, el estrés por sequía disminuye pero aumenta el riesgo de encharcamiento en tierras de barro (arcillosas).
               </span>
             )}
           </p>

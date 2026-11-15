@@ -10,7 +10,7 @@ const customIcon = L.divIcon({
   className: 'custom-agro-marker',
   html: `
     <div style="
-      background: linear-gradient(135deg, #10b981, #059669);
+      background: linear-gradient(135deg, #15803d, #166534);
       width: 32px;
       height: 32px;
       border-radius: 50% 50% 50% 0;
@@ -19,7 +19,7 @@ const customIcon = L.divIcon({
       align-items: center;
       justify-content: center;
       border: 3px solid #ffffff;
-      box-shadow: 0 4px 14px rgba(0,0,0,0.4);
+      box-shadow: 0 4px 14px rgba(21, 101, 52, 0.4);
     ">
       <div style="
         width: 10px;
@@ -100,16 +100,16 @@ export const AgroMap: React.FC = () => {
   }, [coords, selectedLocation]);
 
   return (
-    <div className="bg-slate-900 rounded-2xl border border-slate-800 p-4 sm:p-5 shadow-xl space-y-4">
+    <div className="bg-white rounded-2xl border border-stone-200 p-4 sm:p-5 shadow-sm space-y-4">
       {/* Título de la sección */}
-      <div className="flex items-center justify-between border-b border-slate-800 pb-3">
+      <div className="flex items-center justify-between border-b border-stone-200 pb-3">
         <div className="flex items-center space-x-2">
-          <MapPin className="w-5 h-5 text-emerald-400" />
-          <h2 className="text-sm sm:text-base font-bold text-white tracking-wide">
+          <MapPin className="w-5 h-5 text-emerald-700" />
+          <h2 className="text-sm sm:text-base font-bold text-stone-900 tracking-tight">
             Ubicación de tu Terreno
           </h2>
         </div>
-        <span className="text-[11px] text-emerald-400 font-medium flex items-center gap-1">
+        <span className="text-[11px] text-emerald-800 font-bold bg-emerald-50 px-2 py-0.5 rounded-md border border-emerald-200 flex items-center gap-1">
           <Crosshair className="w-3.5 h-3.5" />
           Guatemala
         </span>
@@ -117,12 +117,12 @@ export const AgroMap: React.FC = () => {
 
       {/* BUSCADOR POR NOMBRE DE MUNICIPIO O DEPARTAMENTO */}
       <div className="space-y-1.5 relative">
-        <label className="block text-xs font-bold text-slate-200">
-          Escribe el nombre de tu Municipio o Departamento:
+        <label className="block text-xs font-bold text-stone-800">
+          Escribe el nombre de tu Municipio o Comunidad:
         </label>
         <div className="relative">
-          <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400">
-            <Search className="w-4 h-4 text-emerald-400" />
+          <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-stone-400">
+            <Search className="w-4 h-4 text-emerald-700" />
           </div>
           <input
             type="text"
@@ -131,8 +131,8 @@ export const AgroMap: React.FC = () => {
               setSearchTerm(e.target.value);
               setIsSearching(true);
             }}
-            placeholder="Ej: Patzún, Cobán, Chiantla, Jocotán, Xela..."
-            className="w-full bg-slate-800/90 hover:bg-slate-800 text-slate-100 text-sm rounded-xl pl-10 pr-9 py-2.5 border border-slate-700 focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 outline-none transition placeholder-slate-500"
+            placeholder="Ej: Patzún, Cobán, Chiantla, Jocotán, Xela, Jutiapa..."
+            className="w-full bg-stone-50 hover:bg-stone-100/70 focus:bg-white text-stone-900 text-sm rounded-xl pl-10 pr-9 py-2.5 border border-stone-300 focus:border-emerald-600 focus:ring-2 focus:ring-emerald-600/20 outline-none transition placeholder-stone-400"
           />
           {searchTerm && (
             <button
@@ -141,7 +141,7 @@ export const AgroMap: React.FC = () => {
                 setSearchTerm('');
                 setIsSearching(false);
               }}
-              className="absolute inset-y-0 right-0 pr-3 flex items-center text-slate-400 hover:text-white"
+              className="absolute inset-y-0 right-0 pr-3 flex items-center text-stone-400 hover:text-stone-700"
             >
               <X className="w-4 h-4" />
             </button>
@@ -150,57 +150,57 @@ export const AgroMap: React.FC = () => {
 
         {/* Resultados del autocompletado en lista visible */}
         {isSearching && filteredLocations.length > 0 && (
-          <div className="absolute top-full left-0 right-0 mt-1 bg-slate-900 border border-slate-700 rounded-xl shadow-2xl z-50 overflow-hidden divide-y divide-slate-800">
+          <div className="absolute top-full left-0 right-0 mt-1 bg-white border border-stone-200 rounded-xl shadow-xl z-50 overflow-hidden divide-y divide-stone-100">
             {filteredLocations.map((loc) => (
               <button
                 key={loc.id}
                 type="button"
                 onClick={() => handleSelectLocation(loc)}
-                className="w-full px-4 py-2.5 text-left text-xs hover:bg-slate-800 flex items-center justify-between transition group"
+                className="w-full px-4 py-2.5 text-left text-xs hover:bg-emerald-50/80 flex items-center justify-between transition group"
               >
                 <div>
-                  <p className="font-bold text-white group-hover:text-emerald-400">
+                  <p className="font-bold text-stone-900 group-hover:text-emerald-800">
                     {loc.name}
                   </p>
-                  <p className="text-[11px] text-slate-400">
+                  <p className="text-[11px] text-stone-500">
                     {loc.department} · {loc.climateZone} ({loc.elevation} msnm)
                   </p>
                 </div>
-                <Check className="w-4 h-4 text-emerald-400 opacity-0 group-hover:opacity-100 transition shrink-0 ml-2" />
+                <Check className="w-4 h-4 text-emerald-700 opacity-0 group-hover:opacity-100 transition shrink-0 ml-2" />
               </button>
             ))}
           </div>
         )}
 
         {isSearching && searchTerm.trim().length > 1 && filteredLocations.length === 0 && (
-          <div className="absolute top-full left-0 right-0 mt-1 bg-slate-900 border border-slate-700 rounded-xl p-3 text-xs text-slate-400 z-50 shadow-xl">
-            No encontramos esa localidad exacta. Puedes tocar directamente en el mapa para colocar el punto de tu terreno.
+          <div className="absolute top-full left-0 right-0 mt-1 bg-white border border-stone-200 rounded-xl p-3 text-xs text-stone-600 z-50 shadow-xl">
+            No encontramos esa localidad exacta en la lista rápida. Puedes tocar directamente sobre el mapa para colocar el punto exacto de tu terreno.
           </div>
         )}
       </div>
 
       {/* Tarjeta de Confirmación de Ubicación Actual */}
-      <div className="p-3 rounded-xl bg-slate-800/80 border border-slate-700/80 flex items-start space-x-2.5">
-        <Building2 className="w-4 h-4 text-emerald-400 shrink-0 mt-0.5" />
+      <div className="p-3.5 rounded-xl bg-stone-50 border border-stone-200 flex items-start space-x-2.5">
+        <Building2 className="w-4 h-4 text-emerald-700 shrink-0 mt-0.5" />
         <div className="flex-1 min-w-0 text-xs">
-          <p className="font-bold text-white">
+          <p className="font-bold text-stone-900">
             {currentNearestLocation.name}, {currentNearestLocation.department}
           </p>
-          <p className="text-slate-300 text-[11px]">
-            Zona agroclimática: <span className="text-emerald-300 font-medium">{currentNearestLocation.climateZone}</span>
-            {' '}· Elevación aprox: <span className="text-slate-200">{analysisResult?.location.elevationMeters || currentNearestLocation.elevation} msnm</span>
+          <p className="text-stone-600 text-[11px]">
+            Zona agroclimática: <span className="text-emerald-800 font-bold">{currentNearestLocation.climateZone}</span>
+            {' '}· Altura aprox: <span className="text-stone-800 font-semibold">{analysisResult?.location.elevationMeters || currentNearestLocation.elevation} msnm</span>
           </p>
         </div>
       </div>
 
       {/* Contenedor del Mapa Leaflet */}
       <div className="space-y-1.5">
-        <div className="flex items-center justify-between text-xs text-slate-400">
-          <span>Vista en mapa satelital / terreno:</span>
-          <span className="text-[11px] text-emerald-400">Puedes tocar para afinar la parcela</span>
+        <div className="flex items-center justify-between text-xs text-stone-600">
+          <span>Vista en mapa de la región:</span>
+          <span className="text-[11px] text-emerald-800 font-medium">Toca el mapa para afinar el punto</span>
         </div>
 
-        <div className="relative w-full h-[260px] sm:h-[280px] rounded-xl overflow-hidden border border-slate-700 shadow-inner">
+        <div className="relative w-full h-[260px] sm:h-[280px] rounded-xl overflow-hidden border border-stone-200 shadow-inner">
           <MapContainer
             center={[coords.lat, coords.lon]}
             zoom={9}
@@ -217,12 +217,12 @@ export const AgroMap: React.FC = () => {
 
             <Marker position={[coords.lat, coords.lon]} icon={customIcon}>
               <Popup>
-                <div className="p-1 text-slate-100 text-xs space-y-1">
-                  <p className="font-bold text-emerald-400">Parcela de Monitoreo</p>
-                  <p className="text-slate-200">
+                <div className="p-1 text-stone-900 text-xs space-y-1">
+                  <p className="font-bold text-emerald-800">Parcela de Monitoreo</p>
+                  <p className="text-stone-700">
                     {currentNearestLocation.name}, {currentNearestLocation.department}
                   </p>
-                  <p className="text-slate-400 text-[11px]">
+                  <p className="text-stone-500 text-[11px]">
                     Lat: {coords.lat.toFixed(4)} · Lon: {coords.lon.toFixed(4)}
                   </p>
                 </div>
@@ -233,17 +233,17 @@ export const AgroMap: React.FC = () => {
               center={[coords.lat, coords.lon]}
               radius={radiusKm * 1000}
               pathOptions={{
-                color: '#10b981',
-                fillColor: '#10b981',
+                color: '#15803d',
+                fillColor: '#15803d',
                 fillOpacity: 0.15,
                 weight: 1.5,
               }}
             />
           </MapContainer>
 
-          <div className="absolute bottom-2 left-2 z-[400] bg-slate-900/95 backdrop-blur px-2.5 py-1 rounded-lg border border-slate-700 text-[11px] text-slate-200 shadow flex items-center gap-1.5">
-            <Navigation className="w-3 h-3 text-emerald-400" />
-            <span>Coordenadas: {coords.lat.toFixed(2)}°, {coords.lon.toFixed(2)}°</span>
+          <div className="absolute bottom-2 left-2 z-[400] bg-white/95 backdrop-blur px-2.5 py-1 rounded-lg border border-stone-200 text-[11px] text-stone-700 shadow-sm flex items-center gap-1.5">
+            <Navigation className="w-3 h-3 text-emerald-700" />
+            <span className="font-medium">Coordenadas: {coords.lat.toFixed(2)}°, {coords.lon.toFixed(2)}°</span>
           </div>
         </div>
       </div>
