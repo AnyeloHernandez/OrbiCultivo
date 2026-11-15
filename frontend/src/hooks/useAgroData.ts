@@ -8,6 +8,7 @@ export function useAgroData() {
     selectedCrop,
     soilType,
     objective,
+    climateScenario,
     setLoading,
     setError,
     setAnalysisResult,
@@ -25,7 +26,8 @@ export function useAgroData() {
         coords.lon,
         selectedCrop,
         soilType,
-        objective
+        objective,
+        climateScenario
       );
       setAnalysisResult(result);
     } catch (err: unknown) {
@@ -37,7 +39,7 @@ export function useAgroData() {
         setLoading(false);
       }, 350);
     }
-  }, [coords.lat, coords.lon, selectedCrop, soilType, objective, setLoading, setError, setAnalysisResult]);
+  }, [coords.lat, coords.lon, selectedCrop, soilType, objective, climateScenario, setLoading, setError, setAnalysisResult]);
 
   useEffect(() => {
     if (debounceTimerRef.current) {

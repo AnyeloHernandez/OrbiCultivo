@@ -34,12 +34,30 @@ def evaluate_crop_resilience(
     crop_id: str = "maiz",
     soil_id: str = "franco",
     objective_id: str = "soil_health",
+    scenario: str = "normal",
     start_date: str | None = None,
     end_date: str | None = None,
 ) -> dict[str, Any]:
     crop = CROPS.get(crop_id, CROPS["maiz"])
     soil = SOILS.get(soil_id, SOILS["franco"])
     objective = OBJECTIVES.get(objective_id, OBJECTIVES["soil_health"])
+
+    # Factores del Simulador de Escenarios Climáticos
+    if scenario == "drought":
+        precip_multiplier = 0.68  # 32% menos lluvia (El Niño)
+        temp_offset = 1.8         # +1.8°C más calor
+        moisture_multiplier = 0.70
+        scenario_label = "Simulación: Sequía Fuerte / Fenómeno El Niño"
+    elif scenario == "rainy":
+        precip_multiplier = 1.30  # 30% más lluvia (La Niña)
+        temp_offset = -0.5
+        moisture_multiplier = 1.25
+        scenario_label = "Simulación: Año Muy Lluvioso / Fenómeno La Niña"
+    else:
+        precip_multiplier = 1.0
+        temp_offset = 0.0
+        moisture_multiplier = 1.0
+        scenario_label = "Histórico Promedio (NASA POWER & SMAP)"
 
     # Determinar rango de fechas para NASA POWER (últimos 60 días para datos climáticos recientes)
     today = date.today()
@@ -88,21 +106,23 @@ def evaluate_crop_resilience(
         temp_max_vals = [r.get("T2M_MAX") for r in records if r.get("T2M_MAX") is not None]
         gwet_root_vals = [r.get("GWETROOT") for r in records if r.get("GWETROOT") is not None]
 
-        total_precip = sum(precip_vals)
-        min_temp = min(temp_min_vals) if temp_min_vals else 12.0
-        max_temp = max(temp_max_vals) if temp_max_vals else 28.0
-        avg_moisture = (sum(gwet_root_vals) / len(gwet_root_vals) * 100) if gwet_root_vals else 45.0
-        days_above_32 = sum(1 for t in temp_max_vals if t >= 32.0)
+        total_precip = sum(precip_vals) * precip_multiplier
+        min_temp = (min(temp_min_vals) if temp_min_vals else 12.0) + (temp_offset * 0.4)
+        max_temp = (max(temp_max_vals) if temp_max_vals else 28.0) + temp_offset
+        avg_moisture = min(98.0, max(12.0, ((sum(gwet_root_vals) / len(gwet_root_vals) * 100) if gwet_root_vals else 45.0) * moisture_multiplier))
+        days_above_32 = sum(1 for t in temp_max_vals if (t + temp_offset) >= 32.0)
     else:
         # Valores simulados agronómicos ajustados a la ubicación
         is_highland = elevation > 1800
         is_corredor_seco = lon > -89.9 and lat < 15.2
 
-        total_precip = 65.0 if is_corredor_seco else (120.0 if is_highland else 180.0)
-        min_temp = 3.5 if is_highland else (17.0 if is_corredor_seco else 14.0)
-        max_temp = 24.0 if is_highland else (35.5 if is_corredor_seco else 29.0)
-        avg_moisture = 28.0 if is_corredor_seco else (48.0 if is_highland else 58.0)
-        days_above_32 = 14 if is_corredor_seco else 0
+        base_p = 65.0 if is_corredor_seco else (120.0 if is_highland else 180.0)
+        total_precip = base_p * precip_multiplier
+        min_temp = (3.5 if is_highland else (17.0 if is_corredor_seco else 14.0)) + (temp_offset * 0.4)
+        max_temp = (24.0 if is_highland else (35.5 if is_corredor_seco else 29.0)) + temp_offset
+        base_m = 28.0 if is_corredor_seco else (48.0 if is_highland else 58.0)
+        avg_moisture = min(98.0, max(12.0, base_m * moisture_multiplier))
+        days_above_32 = (22 if scenario == "drought" else 14) if is_corredor_seco else (4 if scenario == "drought" else 0)
 
     # 1. Cálculo de Estrés Hídrico (Water Stress)
     water_need = crop["water_need_mm"]
@@ -180,6 +200,9 @@ def evaluate_crop_resilience(
     elif lat > 15.4 and lon < -89.9:  # Verapaces
         precip_curve_guate = [40, 35, 45, 80, 190, 310, 290, 270, 340, 280, 130, 75]
 
+    # Aplicar factor del escenario climático a la curva mensual
+    precip_curve_guate = [max(1, int(p * precip_multiplier)) for p in precip_curve_guate]
+
     monthly_demand = round(crop["water_need_mm"] / 8, 1) # demanda estimada por mes de temporada activa
 
     time_series = []
@@ -214,6 +237,8 @@ def evaluate_crop_resilience(
             "crop": crop,
             "soil": soil,
             "objective": objective_id,
+            "scenario": scenario,
+            "scenarioLabel": scenario_label,
         },
         "dataSource": {
             "nasaPower": nasa_ok,

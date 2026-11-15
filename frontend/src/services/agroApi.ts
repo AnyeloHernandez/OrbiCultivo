@@ -1,4 +1,4 @@
-import { AgroAnalysisResult, CropId, SoilId, ObjectiveId } from '../types/agro';
+import { AgroAnalysisResult, CropId, SoilId, ObjectiveId, ClimateScenario } from '../types/agro';
 
 // Fallback generator in case backend is offline or during pure client-side dev
 function generateLocalFallback(
@@ -6,11 +6,15 @@ function generateLocalFallback(
   lon: number,
   cropId: CropId,
   soilId: SoilId,
-  objectiveId: ObjectiveId
+  objectiveId: ObjectiveId,
+  scenario: ClimateScenario = 'normal'
 ): AgroAnalysisResult {
   const isHighland = lat > 14.5 && lon < -90.5;
   const isCorredorSeco = lon > -89.9 && lat < 15.2;
   const elevation = isHighland ? 2150 : (isCorredorSeco ? 420 : 1350);
+
+  const precipMultiplier = scenario === 'drought' ? 0.68 : (scenario === 'rainy' ? 1.30 : 1.0);
+  const tempOffset = scenario === 'drought' ? 1.8 : (scenario === 'rainy' ? -0.5 : 0.0);
 
   const cropNames: Record<CropId, { name: string; sci: string; water: number; cycle: number }> = {
     maiz: { name: 'Maíz', sci: 'Zea mays', water: 600, cycle: 130 },
@@ -31,9 +35,11 @@ function generateLocalFallback(
   const cInfo = cropNames[cropId] || cropNames.maiz;
   const sInfo = soilNames[soilId] || soilNames.franco;
 
-  const precipMonthly = isCorredorSeco
+  const basePrecip = isCorredorSeco
     ? [2, 5, 12, 28, 95, 140, 75, 85, 155, 110, 25, 6]
     : [10, 15, 25, 60, 180, 270, 165, 190, 290, 200, 50, 15];
+
+  const precipMonthly = basePrecip.map(p => Math.max(1, Math.round(p * precipMultiplier)));
 
   const demandPerMonth = Math.round(cInfo.water / 7);
   const months = ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun', 'Jul', 'Ago', 'Sep', 'Oct', 'Nov', 'Dic'];
@@ -42,12 +48,13 @@ function generateLocalFallback(
     month: m,
     precipitation: precipMonthly[idx],
     cropDemand: idx >= 4 && idx <= 9 ? demandPerMonth : Math.round(demandPerMonth * 0.2),
-    soilMoisture: Math.min(95, Math.max(18, Math.round(precipMonthly[idx] * 0.28 + (sInfo.retention === 'Muy Alta' ? 30 : 20)))),
+    soilMoisture: Math.min(95, Math.max(14, Math.round((precipMonthly[idx] * 0.28 + (sInfo.retention === 'Muy Alta' ? 30 : 20)) * (scenario === 'drought' ? 0.72 : (scenario === 'rainy' ? 1.25 : 1.0))))),
     tempMin: isHighland ? (idx < 2 || idx > 10 ? 3 : 9) : (idx < 2 || idx > 10 ? 15 : 21),
-    tempMax: isHighland ? 22 : 34,
+    tempMax: Math.round((isHighland ? 22 : 34) + tempOffset),
   }));
 
-  const waterStressScore = isCorredorSeco ? 74 : (cropId === 'cardamomo' && elevation > 1800 ? 68 : 38);
+  const baseStress = isCorredorSeco ? 74 : (cropId === 'cardamomo' && elevation > 1800 ? 68 : 38);
+  const waterStressScore = scenario === 'drought' ? Math.min(95, baseStress + 28) : (scenario === 'rainy' ? Math.max(12, baseStress - 22) : baseStress);
   const frostProb = isHighland ? 65 : 8;
 
   return {
@@ -228,7 +235,8 @@ export async function fetchAgroAnalysis(
   lon: number,
   cropId: CropId,
   soilId: SoilId,
-  objectiveId: ObjectiveId
+  objectiveId: ObjectiveId,
+  scenario: ClimateScenario = 'normal'
 ): Promise<AgroAnalysisResult> {
   try {
     const res = await fetch('/agro/evaluate', {
@@ -240,18 +248,19 @@ export async function fetchAgroAnalysis(
         crop_id: cropId,
         soil_id: soilId,
         objective_id: objectiveId,
+        scenario: scenario,
       }),
     });
 
     if (!res.ok) {
       console.warn('Backend /agro/evaluate returned status:', res.status, '- Using agronomic fallback model.');
-      return generateLocalFallback(lat, lon, cropId, soilId, objectiveId);
+      return generateLocalFallback(lat, lon, cropId, soilId, objectiveId, scenario);
     }
 
     const data = await res.json();
     return data as AgroAnalysisResult;
   } catch (err) {
     console.warn('Error fetching /agro/evaluate from backend:', err, '- Using agronomic fallback model.');
-    return generateLocalFallback(lat, lon, cropId, soilId, objectiveId);
+    return generateLocalFallback(lat, lon, cropId, soilId, objectiveId, scenario);
   }
 }

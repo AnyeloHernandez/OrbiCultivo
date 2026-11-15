@@ -1,6 +1,7 @@
 export type CropId = 'maiz' | 'frijol' | 'cafe' | 'cardamomo' | 'hortalizas' | 'cana';
 export type SoilId = 'franco' | 'arcilloso' | 'arenoso' | 'volcanico';
 export type ObjectiveId = 'soil_health' | 'climate_resilience' | 'yield_stability';
+export type ClimateScenario = 'normal' | 'drought' | 'rainy';
 
 export interface CropInfo {
   id: CropId;
@@ -107,6 +108,7 @@ export interface AgroAnalysisResult {
     crop: CropInfo;
     soil: SoilInfo;
     objective: ObjectiveId;
+    scenario?: ClimateScenario;
   };
   dataSource: {
     nasaPower: boolean;

@@ -1,5 +1,5 @@
 import { create } from 'zustand';
-import { CropId, SoilId, ObjectiveId, AgroAnalysisResult } from '../types/agro';
+import { CropId, SoilId, ObjectiveId, ClimateScenario, AgroAnalysisResult } from '../types/agro';
 
 interface AgroState {
   // Session variables
@@ -7,6 +7,7 @@ interface AgroState {
   selectedCrop: CropId;
   soilType: SoilId;
   objective: ObjectiveId;
+  climateScenario: ClimateScenario;
   radiusKm: number;
 
   // Data & loading state
@@ -19,6 +20,7 @@ interface AgroState {
   setSelectedCrop: (crop: CropId) => void;
   setSoilType: (soil: SoilId) => void;
   setObjective: (objective: ObjectiveId) => void;
+  setClimateScenario: (scenario: ClimateScenario) => void;
   setRadiusKm: (radius: number) => void;
   setLoading: (isLoading: boolean) => void;
   setError: (error: string | null) => void;
@@ -31,6 +33,7 @@ export const useAgroStore = create<AgroState>((set) => ({
   selectedCrop: 'maiz',
   soilType: 'franco',
   objective: 'soil_health',
+  climateScenario: 'normal',
   radiusKm: 5,
 
   isLoading: false,
@@ -41,6 +44,7 @@ export const useAgroStore = create<AgroState>((set) => ({
   setSelectedCrop: (selectedCrop) => set({ selectedCrop }),
   setSoilType: (soilType) => set({ soilType }),
   setObjective: (objective) => set({ objective }),
+  setClimateScenario: (climateScenario) => set({ climateScenario }),
   setRadiusKm: (radiusKm) => set({ radiusKm }),
   setLoading: (isLoading) => set({ isLoading }),
   setError: (error) => set({ error }),

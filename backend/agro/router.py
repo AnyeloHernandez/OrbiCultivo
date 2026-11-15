@@ -13,6 +13,7 @@ class AgroEvaluationRequest(BaseModel):
     crop_id: str = Field(default="maiz", description="Identificador del cultivo actual")
     soil_id: str = Field(default="franco", description="Identificador del tipo de suelo")
     objective_id: str = Field(default="soil_health", description="Objetivo principal del agricultor")
+    scenario: str = Field(default="normal", description="Escenario climático: normal, drought o rainy")
     start_date: str | None = None
     end_date: str | None = None
 
@@ -36,6 +37,7 @@ def evaluate_parcel(req: AgroEvaluationRequest):
         crop_id=req.crop_id,
         soil_id=req.soil_id,
         objective_id=req.objective_id,
+        scenario=req.scenario,
         start_date=req.start_date,
         end_date=req.end_date,
     )
@@ -49,6 +51,7 @@ def evaluate_parcel_get(
     crop_id: str = "maiz",
     soil_id: str = "franco",
     objective_id: str = "soil_health",
+    scenario: str = "normal",
 ):
     """Versión GET para consultas rápidas vía URL."""
     return service.evaluate_crop_resilience(
@@ -57,4 +60,5 @@ def evaluate_parcel_get(
         crop_id=crop_id,
         soil_id=soil_id,
         objective_id=objective_id,
+        scenario=scenario,
     )

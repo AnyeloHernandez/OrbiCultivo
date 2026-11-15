@@ -2,6 +2,7 @@ import React from 'react';
 import { Header } from './Header';
 import { PreferencesForm } from './LeftPanel/PreferencesForm';
 import { AgroMap } from './LeftPanel/AgroMap';
+import { ClimateScenarioSelector } from './CenterRightPanel/ClimateScenarioSelector';
 import { VulnerabilityCards } from './CenterRightPanel/VulnerabilityCards';
 import { ClimaticCharts } from './CenterRightPanel/ClimaticCharts';
 import { StrategyComparison } from './BottomPanel/StrategyComparison';
@@ -59,6 +60,9 @@ export const Layout: React.FC = () => {
               · Respaldo con observaciones satelitales de la NASA para tus coordenadas
             </span>
           </div>
+
+          {/* Simulador de Escenarios (El Niño / La Niña) */}
+          <ClimateScenarioSelector />
 
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-stretch">
             {/* Semáforo del Clima (5 columnas en pantallas grandes) */}
