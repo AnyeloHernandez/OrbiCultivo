@@ -10,31 +10,27 @@ export const ClimateScenarioSelector: React.FC = () => {
     id: ClimateScenario;
     name: string;
     badge: string;
-    desc: string;
     icon: React.ReactNode;
     colorActive: string;
   }[] = [
     {
       id: 'normal',
       name: 'Año Normal',
-      badge: 'Promedio Satelital',
-      desc: 'Histórico habitual de lluvias y temperaturas de NASA POWER y SMAP.',
+      badge: 'Lluvia habitual',
       icon: <CloudSun className="w-4 h-4 text-emerald-700" />,
       colorActive: 'bg-emerald-50 border-emerald-600 text-emerald-950 ring-2 ring-emerald-600/30',
     },
     {
       id: 'drought',
-      name: 'Año Seco ("El Niño")',
-      badge: '-32% Lluvia | +1.8°C Calor',
-      desc: 'Simula canícula prolongada y falta de agua fuerte en tu siembra.',
+      name: 'Año Seco (El Niño)',
+      badge: '-32% lluvia',
       icon: <SunMedium className="w-4 h-4 text-amber-700" />,
       colorActive: 'bg-amber-50 border-amber-600 text-amber-950 ring-2 ring-amber-600/30',
     },
     {
       id: 'rainy',
-      name: 'Muy Lluvioso ("La Niña")',
-      badge: '+30% Lluvia',
-      desc: 'Simula temporales seguidos con riesgo de lodo y hongos en la raíz.',
+      name: 'Año Lluvioso (La Niña)',
+      badge: '+30% lluvia',
       icon: <CloudRain className="w-4 h-4 text-sky-700" />,
       colorActive: 'bg-sky-50 border-sky-600 text-sky-950 ring-2 ring-sky-600/30',
     },
@@ -54,7 +50,7 @@ export const ClimateScenarioSelector: React.FC = () => {
         </span>
       </div>
 
-      {/* 3 Botones de Escenario */}
+      {/* 3 Botones de Escenario Limpios */}
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5">
         {scenarios.map((sc) => {
           const isSelected = climateScenario === sc.id;
@@ -64,48 +60,43 @@ export const ClimateScenarioSelector: React.FC = () => {
               type="button"
               disabled={isLoading}
               onClick={() => setClimateScenario(sc.id)}
-              className={`p-3 rounded-xl border text-left transition flex flex-col justify-between space-y-1.5 ${
+              className={`p-3 rounded-xl border text-left transition flex items-center justify-between ${
                 isSelected
                   ? `${sc.colorActive} shadow-xs`
                   : 'bg-stone-50 border-stone-200 text-stone-700 hover:bg-stone-100 hover:border-stone-300'
               }`}
             >
-              <div className="flex items-center justify-between">
-                <div className="flex items-center space-x-2">
-                  <div className="p-1.5 rounded-lg bg-white border border-stone-200 shadow-2xs">
-                    {sc.icon}
-                  </div>
-                  <span className="font-bold text-xs">{sc.name}</span>
+              <div className="flex items-center space-x-2.5">
+                <div className="p-1.5 rounded-lg bg-white border border-stone-200 shadow-2xs">
+                  {sc.icon}
                 </div>
-                <span
-                  className={`text-[10px] font-bold px-1.5 py-0.5 rounded border ${
-                    isSelected
-                      ? 'bg-white border-stone-300 text-stone-900 shadow-2xs'
-                      : 'bg-stone-200/60 text-stone-600 border-stone-300'
-                  }`}
-                >
-                  {sc.badge}
-                </span>
+                <span className="font-bold text-xs">{sc.name}</span>
               </div>
-              <p className="text-[11px] text-stone-600 leading-tight">
-                {sc.desc}
-              </p>
+              <span
+                className={`text-[11px] font-bold px-2 py-0.5 rounded border ${
+                  isSelected
+                    ? 'bg-white border-stone-300 text-stone-900 shadow-2xs'
+                    : 'bg-stone-200/60 text-stone-600 border-stone-300'
+                }`}
+              >
+                {sc.badge}
+              </span>
             </button>
           );
         })}
       </div>
 
       {climateScenario !== 'normal' && (
-        <div className="flex items-start space-x-2.5 text-xs text-amber-950 bg-amber-50 border border-amber-300 p-3 rounded-xl">
+        <div className="flex items-start space-x-2 text-xs text-amber-950 bg-amber-50 border border-amber-300 p-2.5 rounded-xl">
           <Info className="w-4 h-4 shrink-0 mt-0.5 text-amber-700" />
           <p className="leading-relaxed">
             {climateScenario === 'drought' ? (
               <span>
-                <strong>Modo Simulación El Niño activo:</strong> El semáforo y la gráfica se han recalculado con un 32% menos de lluvia y mayor temperatura. Observa en el <strong>Paso 3</strong> cómo la rotación con abonos verdes o variedades resistentes amortigua la pérdida.
+                <strong>Modo Sequía activo:</strong> Calculado con 32% menos lluvia. Revisa abajo cómo la rotación con Canavalia retiene el agua en el suelo.
               </span>
             ) : (
               <span>
-                <strong>Modo Simulación La Niña activo:</strong> Con un 30% más de precipitación, el estrés por sequía disminuye pero aumenta el riesgo de encharcamiento en tierras de barro (arcillosas).
+                <strong>Modo Lluvioso activo:</strong> Calculado con 30% más precipitación. Precaución con encharcamientos en tierra de barro.
               </span>
             )}
           </p>

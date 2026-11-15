@@ -38,16 +38,16 @@ export const StrategyComparison: React.FC = () => {
           <div className="flex items-center space-x-2">
             <Sparkles className="w-5 h-5 text-emerald-700" />
             <h2 className="text-base sm:text-lg font-bold text-stone-900 tracking-tight">
-              ¿Qué te conviene sembrar después? (3 Opciones para tu Terreno)
+              ¿Qué te conviene sembrar después? (3 Opciones)
             </h2>
           </div>
-          <p className="text-xs text-stone-600 mt-0.5">
-            Decisiones agronómicas basadas en datos satelitales NASA para tu parcela de {currentCrop}
+          <p className="text-xs text-stone-500 mt-0.5">
+            Opciones agronómicas adaptadas para tu parcela de {currentCrop}
           </p>
         </div>
         <div className="text-xs px-3 py-1 rounded-full bg-emerald-50 text-emerald-800 border border-emerald-200 font-bold flex items-center gap-1.5 shadow-2xs">
           <Satellite className="w-3.5 h-3.5 text-emerald-700" />
-          <span>Validado con Satélites NASA</span>
+          <span>Datos NASA</span>
         </div>
       </div>
 
@@ -85,35 +85,29 @@ export const StrategyComparison: React.FC = () => {
           return (
             <div
               key={strategy.id}
-              className={`rounded-2xl border ${cardBorder} p-5 flex flex-col justify-between space-y-4 transition`}
+              className={`rounded-2xl border ${cardBorder} p-4 sm:p-5 flex flex-col justify-between space-y-3.5 transition`}
             >
               <div className="space-y-3">
                 {/* Header de la tarjeta */}
                 <div className="flex items-start justify-between gap-2">
-                  <div className={`p-2.5 rounded-xl ${iconWrapper}`}>
-                    {isBaseline && <AlertTriangle className="w-5 h-5" />}
-                    {isSoil && <Sprout className="w-5 h-5" />}
-                    {!isBaseline && !isSoil && <ShieldCheck className="w-5 h-5" />}
+                  <div className={`p-2 rounded-xl ${iconWrapper}`}>
+                    {isBaseline && <AlertTriangle className="w-4 h-4" />}
+                    {isSoil && <Sprout className="w-4 h-4" />}
+                    {!isBaseline && !isSoil && <ShieldCheck className="w-4 h-4" />}
                   </div>
-                  <span className={`text-[11px] font-bold px-2.5 py-0.5 rounded-full border flex items-center gap-1 ${tagBadge}`}>
-                    {isBaseline && <AlertTriangle className="w-3 h-3" />}
-                    {isSoil && <Sprout className="w-3 h-3" />}
-                    {!isBaseline && !isSoil && <ShieldCheck className="w-3 h-3" />}
-                    <span>{strategy.tag}</span>
+                  <span className={`text-[11px] font-bold px-2 py-0.5 rounded-full border flex items-center gap-1 ${tagBadge}`}>
+                    {strategy.tag}
                   </span>
                 </div>
 
                 <div>
-                  <h3 className="text-base font-extrabold text-stone-900">
+                  <h3 className="text-sm sm:text-base font-extrabold text-stone-900 leading-snug">
                     {strategy.title}
                   </h3>
-                  <p className="text-xs text-stone-500 mt-0.5 font-medium">
-                    {strategy.subtitle}
-                  </p>
                 </div>
 
                 {/* Secuencia de rotación */}
-                <div className="p-2.5 rounded-xl bg-stone-50 border border-stone-200 flex flex-wrap items-center gap-1.5 text-xs text-stone-700">
+                <div className="p-2 rounded-xl bg-stone-50 border border-stone-200 flex flex-wrap items-center gap-1.5 text-xs text-stone-700">
                   {strategy.rotationCrops.map((crop, idx) => (
                     <React.Fragment key={idx}>
                       <span className="font-bold text-stone-900 px-2 py-0.5 rounded-md bg-white border border-stone-200 shadow-2xs">
@@ -131,13 +125,13 @@ export const StrategyComparison: React.FC = () => {
                 </p>
 
                 {/* Beneficios o Advertencias */}
-                <div className="space-y-2 pt-2 border-t border-stone-200">
+                <div className="space-y-1.5 pt-2 border-t border-stone-200">
                   {strategy.highlights.map((h, i) => (
                     <div key={i} className="flex items-start space-x-2 text-xs">
                       {h.isPositive ? (
-                        <CheckCircle2 className="w-4 h-4 text-emerald-700 shrink-0 mt-0.5" />
+                        <CheckCircle2 className="w-3.5 h-3.5 text-emerald-700 shrink-0 mt-0.5" />
                       ) : (
-                        <AlertTriangle className="w-4 h-4 text-rose-600 shrink-0 mt-0.5" />
+                        <AlertTriangle className="w-3.5 h-3.5 text-rose-600 shrink-0 mt-0.5" />
                       )}
                       <span className={h.isPositive ? 'text-stone-700' : 'text-rose-800 font-medium'}>
                         {h.text}
@@ -147,7 +141,7 @@ export const StrategyComparison: React.FC = () => {
                 </div>
               </div>
 
-              {/* Botón Acordeón: Evidencia Satelital NASA & Validación de Campo (Requisito NASA) */}
+              {/* Botón Acordeón: Evidencia Satelital NASA & Validación de Campo */}
               <div className="pt-2 border-t border-stone-200 space-y-2">
                 <button
                   type="button"
@@ -220,16 +214,16 @@ export const StrategyComparison: React.FC = () => {
               </div>
 
               {/* Pie con resultado económico */}
-              <div className="pt-3 border-t border-stone-200 text-xs bg-stone-50/80 -mx-5 -mb-5 p-4 rounded-b-2xl">
-                <p className="text-[11px] text-stone-500 font-bold uppercase tracking-wider">
-                  Resultado para tu bolsillo:
+              <div className="pt-2.5 border-t border-stone-200 text-xs bg-stone-50/80 -mx-4 -mb-4 sm:-mx-5 sm:-mb-5 p-3.5 rounded-b-2xl">
+                <p className="text-[10px] text-stone-500 font-bold uppercase tracking-wider">
+                  Bolsillo:
                 </p>
                 <p className={`text-xs mt-0.5 ${pocketColor}`}>
                   {isBaseline
-                    ? 'Alto riesgo de pérdida económica si la sequía continúa'
+                    ? 'Riesgo alto de pérdida económica con sequía continua'
                     : isSoil
-                    ? 'Ahorras en fertilizantes químicos y la tierra rinde más'
-                    : 'Cosecha segura y protección contra la quiebra familiar'}
+                    ? 'Ahorras en fertilizante químico y nutres la tierra'
+                    : 'Cosecha protegida contra variaciones climáticas'}
                 </p>
               </div>
             </div>

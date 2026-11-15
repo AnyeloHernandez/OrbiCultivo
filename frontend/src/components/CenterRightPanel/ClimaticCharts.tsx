@@ -30,10 +30,10 @@ export const ClimaticCharts: React.FC = () => {
         <div>
           <h3 className="text-sm font-bold text-stone-900 flex items-center gap-2">
             <Calendar className="w-4 h-4 text-emerald-700" />
-            Calendario: Meses con Lluvia vs Lo que pide tu {cropName}
+            Lluvia del Año vs Agua que Pide tu {cropName}
           </h3>
-          <p className="text-xs text-stone-600 mt-0.5">
-            Observaciones satelitales NASA que identifican sequías estacionales y temporadas de suelo baldío
+          <p className="text-xs text-stone-500 mt-0.5">
+            Observación histórica para identificar meses secos y temporadas libres
           </p>
         </div>
 
@@ -41,11 +41,11 @@ export const ClimaticCharts: React.FC = () => {
         <div className="flex flex-wrap items-center gap-3 text-xs">
           <div className="flex items-center gap-1.5">
             <span className="w-3 h-3 rounded bg-sky-600"></span>
-            <span className="text-stone-700 font-medium">Lluvia esperada</span>
+            <span className="text-stone-700 font-medium">Lluvia</span>
           </div>
           <div className="flex items-center gap-1.5">
             <span className="w-3 h-3 rounded bg-amber-600"></span>
-            <span className="text-stone-700 font-medium">Agua que pide {cropName}</span>
+            <span className="text-stone-700 font-medium">Demanda del cultivo</span>
           </div>
           <div className="flex items-center gap-1.5">
             <span className="w-3 h-3 rounded bg-amber-200 border border-amber-400"></span>
@@ -54,7 +54,7 @@ export const ClimaticCharts: React.FC = () => {
         </div>
       </div>
 
-      {/* Barra de Fases del Año y Suelo Baldío (Requisito NASA) */}
+      {/* Barra de Fases del Año y Suelo Baldío */}
       <div className="grid grid-cols-4 gap-1.5 text-[11px] font-medium text-center">
         <div className="p-2 rounded-xl bg-stone-100 border border-stone-200 text-stone-700">
           <span className="font-bold text-stone-900 block">Ene - Abr</span>
@@ -87,7 +87,7 @@ export const ClimaticCharts: React.FC = () => {
       </div>
 
       {/* Gráfico de barras con sombreado de Canícula */}
-      <div className="h-56 sm:h-64 w-full pt-1">
+      <div className="h-52 sm:h-60 w-full pt-1">
         <ResponsiveContainer width="100%" height="100%">
           <BarChart
             data={timeSeries}
@@ -117,7 +117,7 @@ export const ClimaticCharts: React.FC = () => {
               }}
               formatter={(val: number, name: string) => [
                 `${val} mm`,
-                name === 'precipitation' ? 'Lluvia esperada' : `Agua que pide ${cropName}`,
+                name === 'precipitation' ? 'Lluvia esperada' : `Demanda ${cropName}`,
               ]}
               labelFormatter={(label) => `Mes de ${label}`}
             />
@@ -149,30 +149,30 @@ export const ClimaticCharts: React.FC = () => {
         </ResponsiveContainer>
       </div>
 
-      {/* Tarjetas de Diagnóstico de Temporadas: Canícula vs Suelo Baldío (Requisito NASA) */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5 text-xs">
+      {/* Tarjetas de Diagnóstico de Temporadas: Concisas */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs">
         {/* Temporada Crítica */}
-        <div className="p-3.5 rounded-xl bg-amber-50/90 border border-amber-200 flex items-start space-x-2.5 text-amber-950">
+        <div className="p-3 rounded-xl bg-amber-50/90 border border-amber-200 flex items-start space-x-2 text-amber-950">
           <ShieldAlert className="w-4 h-4 text-amber-700 shrink-0 mt-0.5" />
-          <div className="space-y-0.5">
+          <div>
             <p className="font-bold text-stone-900 text-[11px]">
-              Momento más vulnerable: Canícula (Julio - Agosto)
+              Alerta de Canícula (Jul - Ago)
             </p>
-            <p className="text-[11px] text-amber-900/90 leading-relaxed">
-              El cultivo de {cropName} entra en floración justo cuando la lluvia disminuye. Si la tierra no tiene cobertura de rastrojo, el sol evapora el agua y el grano no cuaja.
+            <p className="text-[11px] text-amber-900/90 leading-tight mt-0.5">
+              El {cropName} florece con menos lluvia. Cubre el suelo con rastrojo para no perder agua.
             </p>
           </div>
         </div>
 
         {/* Ventana de Suelo Baldío */}
-        <div className="p-3.5 rounded-xl bg-emerald-50/90 border border-emerald-200 flex items-start space-x-2.5 text-emerald-950">
+        <div className="p-3 rounded-xl bg-emerald-50/90 border border-emerald-200 flex items-start space-x-2 text-emerald-950">
           <Sprout className="w-4 h-4 text-emerald-700 shrink-0 mt-0.5" />
-          <div className="space-y-0.5">
+          <div>
             <p className="font-bold text-stone-900 text-[11px]">
-              Oportunidad: Suelo Baldío (Noviembre - Abril)
+              Oportunidad: Suelo Libre (Nov - Abr)
             </p>
-            <p className="text-[11px] text-emerald-900/90 leading-relaxed">
-              Tras la cosecha, la parcela queda meses desprotegida. Es la ventana perfecta para sembrar <strong>Frijol Abono (Canavalia)</strong> que proteja el suelo contra el viento y fije nitrógeno gratis.
+            <p className="text-[11px] text-emerald-900/90 leading-tight mt-0.5">
+              Siembra Frijol Abono (Canavalia) para nutrir la tierra y fijar nitrógeno gratis.
             </p>
           </div>
         </div>
