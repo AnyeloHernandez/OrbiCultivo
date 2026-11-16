@@ -1,5 +1,5 @@
 from pathlib import Path
-from fastapi import FastAPI
+from fastapi import FastAPI, APIRouter
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 
@@ -12,6 +12,8 @@ app = FastAPI(
     title="OrbiCultivo Geo API · NASA POWER + Copernicus + Agro Resilience",
     description="API para la plataforma de resiliencia agrícola desarrollada por Olympus Forge",
     version="2.0.0",
+    docs_url="/docs",
+    openapi_url="/openapi.json",
 )
 
 app.add_middleware(
@@ -22,16 +24,40 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+# API router con prefijo /api para Vercel y clientes estándar
+api_router = APIRouter(prefix="/api")
+api_router.include_router(nasa_router)
+api_router.include_router(cop_router)
+api_router.include_router(metrics_router)
+api_router.include_router(agro_router)
+app.include_router(api_router)
+
+# También incluir directamente para compatibilidad hacia atrás y local
 app.include_router(nasa_router)
 app.include_router(cop_router)
 app.include_router(metrics_router)
 app.include_router(agro_router)
 
-# Mount frontend build if available, else frontend root
-FRONTEND_DIST = Path(__file__).resolve().parent.parent / "frontend" / "dist"
-FRONTEND_SRC = Path(__file__).resolve().parent.parent / "frontend"
+# Endpoint de salud y diagnóstico
+@app.get("/api/health")
+@app.get("/health")
+def health_check():
+    return {
+        "status": "healthy",
+        "service": "OrbiCultivo Backend API",
+        "version": "2.0.0",
+    }
 
-if FRONTEND_DIST.exists():
-    app.mount("/", StaticFiles(directory=FRONTEND_DIST, html=True), name="frontend")
-elif FRONTEND_SRC.exists():
-    app.mount("/", StaticFiles(directory=FRONTEND_SRC, html=True), name="frontend")
+# Buscar rutas posibles para servir el frontend si se ejecuta de forma unificada fuera de Vercel
+CANDIDATE_PATHS = [
+    Path(__file__).resolve().parent.parent / "frontend" / "dist",
+    Path("/frontend/dist"),
+    Path("/app/frontend/dist"),
+    Path(__file__).resolve().parent.parent / "frontend",
+    Path("/frontend"),
+]
+
+for p in CANDIDATE_PATHS:
+    if p.exists() and (p / "index.html").exists():
+        app.mount("/", StaticFiles(directory=p, html=True), name="frontend")
+        break

@@ -238,29 +238,40 @@ export async function fetchAgroAnalysis(
   objectiveId: ObjectiveId,
   scenario: ClimateScenario = 'normal'
 ): Promise<AgroAnalysisResult> {
+  const payload = {
+    lat,
+    lon,
+    crop_id: cropId,
+    soil_id: soilId,
+    objective_id: objectiveId,
+    scenario: scenario,
+  };
+
   try {
-    const res = await fetch('/agro/evaluate', {
+    // Intentar /api/agro/evaluate (estándar para Vercel rewrites), con fallback a /agro/evaluate
+    let res = await fetch('/api/agro/evaluate', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        lat,
-        lon,
-        crop_id: cropId,
-        soil_id: soilId,
-        objective_id: objectiveId,
-        scenario: scenario,
-      }),
+      body: JSON.stringify(payload),
     });
 
+    if (!res.ok && res.status === 404) {
+      res = await fetch('/agro/evaluate', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload),
+      });
+    }
+
     if (!res.ok) {
-      console.warn('Backend /agro/evaluate returned status:', res.status, '- Using agronomic fallback model.');
+      console.warn('Backend returned status:', res.status, '- Using agronomic fallback model.');
       return generateLocalFallback(lat, lon, cropId, soilId, objectiveId, scenario);
     }
 
     const data = await res.json();
     return data as AgroAnalysisResult;
   } catch (err) {
-    console.warn('Error fetching /agro/evaluate from backend:', err, '- Using agronomic fallback model.');
+    console.warn('Error fetching from backend:', err, '- Using agronomic fallback model.');
     return generateLocalFallback(lat, lon, cropId, soilId, objectiveId, scenario);
   }
 }
